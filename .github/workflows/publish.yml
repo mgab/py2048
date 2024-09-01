@@ -1,0 +1,43 @@
+---
+name: 🚀 Build and publish
+
+on:
+  push:
+    tags:
+      - '*'
+    branches:
+      - snapshot/*
+  workflow_call:
+    inputs:
+      git-ref:
+        description: "git tag, branch or commit to use"
+        type: string
+        required: true
+
+
+concurrency:
+  group: deploy
+
+jobs:
+  build-and-deploy-package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: "${{ inputs.git-ref || github.head_ref }}"
+      - name: Setup uv
+        uses: yezz123/setup-uv@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Build Package
+        run: |
+          make build
+      - name: Publish Package
+        env:
+          NEXUS_USER: ${{ secrets.NEXUS_USER }}
+          NEXUS_PASS: ${{ secrets.NEXUS_PASS }}
+        run: |
+          echo "Nexus user ${NEXUS_USER}"
+          make publish
