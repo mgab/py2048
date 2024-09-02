@@ -1,0 +1,31 @@
+[project]
+name = "py2048"
+dynamic = ["version"]
+description = "py2048"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = []
+
+[project.scripts]
+py2048 = "py2048.__main__:app"
+
+[build-system]
+requires = ["hatchling",
+            "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.uv]
+index-url = "https://pypi.org/simple"
+dev-dependencies = [
+    "mypy>=1.11.0",
+    "pytest>=8.3.2",
+    "ruff>=0.6.3",
+]
+
+[tool.mypy]
+strict = true
+
+

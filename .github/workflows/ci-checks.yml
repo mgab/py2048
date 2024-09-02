@@ -1,0 +1,55 @@
+name: 🔍 check linting & tests
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - ready_for_review
+    branches:
+      - devel
+
+  push:
+    branches:
+      - main
+      - devel
+      - snapshot/*
+
+  workflow_call:
+    inputs:
+      skip-linting:
+        description: "Skip lining and only run tests"
+        required: false
+        type: boolean
+        default: false
+
+
+jobs:
+  linting-and-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.12"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup uv
+        uses: yezz123/setup-uv@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "${{ matrix.python-version }}"
+      - name: Install dev dependencies
+        run: |
+          make install-dev-requirements
+      - name: Check format
+        if: "${{ ! inputs.skip-linting }}"
+        run: |
+          make check-format
+      - name: Check typing
+        run: |
+          make check-typing
+      - name: Check tests
+        run: |
+          make check-tests

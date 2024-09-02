@@ -1,0 +1,102 @@
+# This is a basic workflow that is manually triggered
+name: 🏅 Release new version
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  workflow_dispatch:
+    # Inputs the workflow accepts.
+    inputs:
+      kind:
+        # Friendly description to be shown in the UI instead of 'name'
+        description: 'What kind of release is it?'
+        # Default value if no value is explicitly provided
+        default: 'minor'
+        # Input has to be provided for the workflow to run
+        required: true
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+      skip-checks:
+        description: Skip CI tests
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  run-tests:
+    if: ${{ ! inputs.skip-checks }}
+    uses: ./.github/workflows/ci-checks.yml
+    secrets: inherit
+    with:
+      skip-linting: true  
+  
+  create-release:
+    # the `if` and `needs` values forces to run this job always, but after run-tests
+    if: "${{ always() }}"
+    needs: run-tests
+    runs-on: ubuntu-latest
+
+    # the GHA_TRIGGER_TOKEN is a PTA (personal access token) that allows pushes from actions
+    # to trigger other actions that listen to push events
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: devel
+          token: ${{ secrets.GHA_TRIGGER_TOKEN }}
+
+      - name: Get next version
+        uses: reecetech/version-increment@2023.9.3
+        id: version
+        with:
+          scheme: semver
+          increment: ${{ github.event.inputs.kind }}
+
+      - name: config
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+
+      - name: create-feature-branch
+        run: git checkout -b release/${{ steps.version.outputs.version }}
+
+      # as current tag has not been generated yet all current commits would be considered for next release
+      # to avoid this we force the unreleased commits version with `--next-tag`
+      - name: generate-changelog
+        run: |
+          docker pull quay.io/git-chglog/git-chglog:0.15.4
+          docker run -v "$PWD":/workdir quay.io/git-chglog/git-chglog --next-tag ${{ steps.version.outputs.version }} -c .github/chglog/config.yml -o CHANGELOG.md   
+          git add .
+          git commit -m"[CHANGELOG] ${{ steps.version.outputs.version }}"
+
+      - name: get-tag-message # get the message for the tag, with the messages of commits included
+        id: tag-message
+        run: |
+          git fetch origin main
+          tagMsg=$(git log --left-right --oneline --pretty='%s' release/${{ steps.version.outputs.version }}...main | head -n -1 | sed "s/\"/'/g")
+          echo "TAG_MESSAGE=$tagMsg" >> $GITHUB_ENV
+
+      - name: finalize-release  # merge the release
+        run: |
+          git checkout main
+          git merge --no-ff release/${{ steps.version.outputs.version }}
+          git tag -a ${{ steps.version.outputs.version }} -m "${{ env.TAG_MESSAGE }}"
+          git checkout devel
+          git merge --no-ff release/${{ steps.version.outputs.version }}
+          git fetch --tags origin
+          git merge --no-ff ${{ steps.version.outputs.version }}
+
+      - name: push-merged-release # push the changes to remote
+        run: |
+          git push origin main
+          git push origin devel
+          git push origin --tags
+
+      - name: clean-release-branch  # delete the release branch
+        run: |
+          git checkout devel
+          git branch -d release/${{ steps.version.outputs.version }}
