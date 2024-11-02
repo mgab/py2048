@@ -99,3 +99,7 @@ def spawn_number(board: CellBoard) -> CellBoard:
 
 def is_game_over(board: CellBoard) -> bool:
     return not any(_get_empty_cells(board)) and not _any_adjacent_repeated_number(board)
+
+
+def get_max_value(board: CellBoard) -> int:
+    return max(max(row) for row in board)
