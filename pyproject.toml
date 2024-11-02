@@ -17,15 +17,52 @@ build-backend = "hatchling.build"
 [tool.hatch.version]
 source = "vcs"
 
+[dependency-groups]
+dev = [
+    "mypy~=1.11",
+    "pytest~=8.3",
+    "ruff~=0.7.1",
+]
+
 [tool.uv]
 index-url = "https://pypi.org/simple"
-dev-dependencies = [
-    "mypy>=1.11.0",
-    "pytest>=8.3.2",
-    "ruff>=0.6.3",
-]
 
 [tool.mypy]
 strict = true
 
+[tool.ruff.lint]
+# https://docs.astral.sh/ruff/rules/
+select = ["ALL"]
+ignore = [
+    # Modules
+    "D",   # pydocstyle
 
+    # Specific rules
+    "W191",
+    "E111",
+    "E114",
+    "E117",
+    "D206",
+    "D300",
+    "Q001",
+    "Q002",
+    "Q003",
+    "COM812",
+    "COM819",
+    "ISC001",
+    "ISC002",
+    # The ones above conflict with ruff formatter
+    # https://docs.astral.sh/ruff/formatter/#conflicting-lint-rules
+    "PT004",  # conflicting, already deprecated
+    "PLC0414",
+    "S311",  # unsafe random generators
+    "T201",  # print statements
+]
+
+
+[tool.ruff.lint.per-file-ignores]
+"!tests/" = ["S101"]
+"**/resources_dir/**" = ["INP001"]
+
+[tool.ruff.lint.pycodestyle]
+ignore-overlong-task-comments = true

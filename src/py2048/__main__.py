@@ -30,7 +30,7 @@ def app() -> None:
             keep_loop = False
             print("bye!")
             break
-        elif event_key == KEY_UP:
+        if event_key == KEY_UP:
             print("move up")
             new_board = move_up(board)
         elif event_key == KEY_DOWN:

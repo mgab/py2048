@@ -1,5 +1,4 @@
 #NEXUS_URL=http://
-PYTHON_VERSION ?= 3.12
 PY_DIRECTORIES=src/ tests/
 
 .PHONY: install-editable
@@ -16,12 +15,8 @@ update-lock-requirements:
 
 .PHONY: format
 format: install-dev-requirements
+	uv run ruff format ${PY_DIRECTORIES}
 	uv run ruff check --fix ${PY_DIRECTORIES}
-	uv run ruff format ${PY_DIRECTORIES}	
-
-.PHONY: check-tests
-check-tests: install-dev-requirements
-	uv run pytest -v -s
 
 .PHONY: check-format
 check-format: install-dev-requirements
@@ -30,10 +25,18 @@ check-format: install-dev-requirements
 
 .PHONY: check-typing
 check-typing: install-dev-requirements
-	.venv/bin/mypy ${PY_DIRECTORIES}
+	uv run mypy ${PY_DIRECTORIES}
+
+.PHONY: check-tests
+check-tests: install-dev-requirements
+	uv run pytest -v -s tests/unit/
+
+.PHONY: check-it-tests
+check-it-tests: install-dev-requirements
+	uv run pytest -v -s tests/integration/
 
 .PHONY: checks
-checks: check-format check-typing check-tests
+checks: check-format check-typing check-tests check-it-tests
 
 .PHONY: clean
 clean:
