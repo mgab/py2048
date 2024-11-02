@@ -1,4 +1,4 @@
-from pytest import fixture
+import pytest
 
 from py2048.models.board import (
     CellBoard,
@@ -39,7 +39,7 @@ def test_transpose() -> None:
     ) == [[0, 4, 8, 12], [1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15]]
 
 
-@fixture
+@pytest.fixture
 def sample_board() -> CellBoard:
     return [[0, 1, 0, 1], [0, 1, 0, 2], [2, 1, 3, 0], [0, 0, 1, 0]]
 

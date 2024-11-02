@@ -1,5 +1,5 @@
 import random
-from typing import Iterable
+from collections.abc import Iterable
 
 CellBoard = list[list[int]]
 
@@ -11,7 +11,8 @@ def _increase(val: int) -> int:
 def compact_row(row: list[int]) -> list[int]:
     def _inner(
         row: list[int],
-        acc: list[int] = [],
+        acc: list[int] = [],  # noqa: B006
+        *,
         last_merged: bool = False,
         tailing_zeroes: int = 0,
     ) -> list[int]:
@@ -19,11 +20,19 @@ def compact_row(row: list[int]) -> list[int]:
             return acc + [0] * tailing_zeroes
         head, *tail = row
         if head == 0:
-            return _inner(tail, acc, last_merged, tailing_zeroes + 1)
-        elif acc and head == acc[-1] and not last_merged:
-            return _inner(tail, acc[:-1] + [_increase(head)], True, tailing_zeroes + 1)
-        else:
-            return _inner(tail, acc + [head], False, tailing_zeroes)
+            return _inner(
+                tail, acc, last_merged=last_merged, tailing_zeroes=tailing_zeroes + 1
+            )
+        if acc and head == acc[-1] and not last_merged:
+            return _inner(
+                tail,
+                [*acc[:-1], _increase(head)],
+                last_merged=True,
+                tailing_zeroes=tailing_zeroes + 1,
+            )
+        return _inner(
+            tail, [*acc, head], last_merged=False, tailing_zeroes=tailing_zeroes
+        )
 
     return _inner(row)
 
@@ -37,7 +46,7 @@ def reverse_row(row: list[int]) -> list[int]:
 
 
 def transpose(board: CellBoard) -> CellBoard:
-    return [list(col) for col in zip(*board)]
+    return [list(col) for col in zip(*board, strict=True)]
 
 
 def move_left(board: CellBoard) -> CellBoard:
@@ -93,7 +102,8 @@ def _any_adjacent_repeated_number(board: CellBoard) -> bool:
 def spawn_number(board: CellBoard) -> CellBoard:
     empties = _get_empty_cells(board)
     position = random.choice(list(empties))
-    new_number = 1 if random.random() < 0.9 else _increase(1)
+    prob_base_value = 0.9
+    new_number = 1 if random.random() < prob_base_value else _increase(1)
     return _substitute_value(board, position, new_number)
 
 
