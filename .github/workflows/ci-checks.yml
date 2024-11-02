@@ -32,24 +32,38 @@ jobs:
       matrix:
         python-version: ["3.12"]
     steps:
-      - name: Checkout
+      - name: 'Checkout Repository'
         uses: actions/checkout@v4
-      - name: Setup uv
-        uses: yezz123/setup-uv@v4
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: 'Setup UV'
+        uses: astral-sh/setup-uv@v3
+
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "${{ matrix.python-version }}"
+
       - name: Install dev dependencies
         run: |
           make install-dev-requirements
+
       - name: Check format
         if: "${{ ! inputs.skip-linting }}"
         run: |
           make check-format
+
       - name: Check typing
         run: |
           make check-typing
+
       - name: Check tests
         run: |
           make check-tests
+
+      - name: Check integration tests
+        run: |
+          make check-it-tests
+      
