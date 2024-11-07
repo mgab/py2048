@@ -2,39 +2,39 @@ import pytest
 
 from py2048.models.board import (
     CellBoard,
+    _compact_row,
+    _reverse_row,
     _substitute_value,
-    compact_row,
+    _transpose,
     move_down,
     move_left,
     move_right,
     move_up,
-    reverse_row,
-    transpose,
 )
 
 
 def test_compact_row() -> None:
-    assert compact_row([0, 0, 0, 0]) == [0, 0, 0, 0]
-    assert compact_row([1, 0, 0, 0]) == [1, 0, 0, 0]
-    assert compact_row([0, 1, 0, 0]) == [1, 0, 0, 0]
-    assert compact_row([1, 0, 2, 1]) == [1, 2, 1, 0]
-    assert compact_row([1, 3, 2, 1]) == [1, 3, 2, 1]
+    assert _compact_row([0, 0, 0, 0]) == [0, 0, 0, 0]
+    assert _compact_row([1, 0, 0, 0]) == [1, 0, 0, 0]
+    assert _compact_row([0, 1, 0, 0]) == [1, 0, 0, 0]
+    assert _compact_row([1, 0, 2, 1]) == [1, 2, 1, 0]
+    assert _compact_row([1, 3, 2, 1]) == [1, 3, 2, 1]
 
 
 def test_compact_row_merge() -> None:
-    assert compact_row([1, 1, 0, 0]) == [2, 0, 0, 0]
-    assert compact_row([2, 0, 2, 0]) == [3, 0, 0, 0]
-    assert compact_row([1, 0, 1, 1]) == [2, 1, 0, 0]
-    assert compact_row([1, 1, 1, 1]) == [2, 2, 0, 0]
-    assert compact_row([1, 2, 2, 1]) == [1, 3, 1, 0]
+    assert _compact_row([1, 1, 0, 0]) == [2, 0, 0, 0]
+    assert _compact_row([2, 0, 2, 0]) == [3, 0, 0, 0]
+    assert _compact_row([1, 0, 1, 1]) == [2, 1, 0, 0]
+    assert _compact_row([1, 1, 1, 1]) == [2, 2, 0, 0]
+    assert _compact_row([1, 2, 2, 1]) == [1, 3, 1, 0]
 
 
 def test_reverse_row() -> None:
-    assert reverse_row([0, 1, 0, 3]) == [3, 0, 1, 0]
+    assert _reverse_row([0, 1, 0, 3]) == [3, 0, 1, 0]
 
 
 def test_transpose() -> None:
-    assert transpose(
+    assert _transpose(
         [[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15]]
     ) == [[0, 4, 8, 12], [1, 5, 9, 13], [2, 6, 10, 14], [3, 7, 11, 15]]
 

@@ -57,6 +57,9 @@ ignore = [
     "PLC0414",
     "S311",  # unsafe random generators
     "T201",  # print statements
+    "TD002",
+    "TD003",
+    "FIX002",
 ]
 
 
