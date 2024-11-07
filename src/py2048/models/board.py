@@ -2,13 +2,14 @@ import random
 from collections.abc import Iterable
 
 CellBoard = list[list[int]]
+# TODO: refactor as an object with methods
 
 
 def _increase(val: int) -> int:
     return val + 1
 
 
-def compact_row(row: list[int]) -> list[int]:
+def _compact_row(row: list[int]) -> list[int]:
     def _inner(
         row: list[int],
         acc: list[int] = [],  # noqa: B006
@@ -37,36 +38,36 @@ def compact_row(row: list[int]) -> list[int]:
     return _inner(row)
 
 
-def new_empty_board(n: int = 4) -> CellBoard:
-    return [[0] * n for _ in range(n)]
+def new_empty_board(size: int = 4) -> CellBoard:
+    return [[0] * size for _ in range(size)]
 
 
-def reverse_row(row: list[int]) -> list[int]:
+def _reverse_row(row: list[int]) -> list[int]:
     return row[::-1]
 
 
-def transpose(board: CellBoard) -> CellBoard:
+def _transpose(board: CellBoard) -> CellBoard:
     return [list(col) for col in zip(*board, strict=True)]
 
 
 def move_left(board: CellBoard) -> CellBoard:
-    return [compact_row(col) for col in board]
+    return [_compact_row(col) for col in board]
 
 
 def move_right(board: CellBoard) -> CellBoard:
-    return [reverse_row(compact_row(reverse_row(col))) for col in board]
+    return [_reverse_row(_compact_row(_reverse_row(col))) for col in board]
 
 
 def move_up(board: CellBoard) -> CellBoard:
-    return transpose(move_left(transpose(board)))
+    return _transpose(move_left(_transpose(board)))
 
 
 def move_down(board: CellBoard) -> CellBoard:
-    return transpose(move_right(transpose(board)))
+    return _transpose(move_right(_transpose(board)))
 
 
-def draw(board: CellBoard) -> None:
-    print("\n".join([str([2**c if c != 0 else 0 for c in row]) for row in board]))
+def as_list_of_lists(board: CellBoard) -> list[list[int]]:
+    return board
 
 
 def _substitute_value(
@@ -95,7 +96,7 @@ def _any_adjacent_repeated_number_in_row(row: list[int]) -> bool:
 
 def _any_adjacent_repeated_number(board: CellBoard) -> bool:
     return any(_any_adjacent_repeated_number_in_row(row) for row in board) or any(
-        _any_adjacent_repeated_number_in_row(row) for row in transpose(board)
+        _any_adjacent_repeated_number_in_row(row) for row in _transpose(board)
     )
 
 
