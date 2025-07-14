@@ -19,21 +19,27 @@ concurrency:
   group: deploy
 
 jobs:
-  build-and-deploy-package:
+  build-and-publish-package:
+    name: "Publish python package"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
         with:
           ref: "${{ inputs.git-ref || github.head_ref }}"
-      - name: Setup uv
-        uses: yezz123/setup-uv@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
+          fetch-depth: 0
+          token: ${{ secrets.GHA_TRIGGER_TOKEN }}
+
+      - name: Setup UV & python
+        uses: astral-sh/setup-uv@v6
         with:
+          version: latest
           python-version: "3.12"
+
       - name: Build Package
         run: |
           make build
+
       - name: Publish Package
         env:
           NEXUS_USER: ${{ secrets.NEXUS_USER }}

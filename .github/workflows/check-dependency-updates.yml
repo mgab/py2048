@@ -11,18 +11,23 @@ jobs:
   update-requirements:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref_name }}
-      - name: Set up Python
-        uses: actions/setup-python@v5
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+
+      - name: Setup UV & python
+        uses: astral-sh/setup-uv@v6
         with:
+          version: latest
           python-version: "3.12"
+
       - name: Update dependencies
         run: |
             make update-lock-requirements
             echo "DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
