@@ -2,38 +2,38 @@
 PY_DIRECTORIES=src/ tests/
 
 .PHONY: install-editable
-install-requirements:
+install-editable:
 	uv sync --no-dev
 
 .PHONY: install-dev-requirements
 install-dev-requirements:
 	uv sync
 
-.PHONY: update-lock-requirements
-update-lock-requirements:
+.PHONY: upgrade-lock-requirements
+upgrade-lock-requirements:
 	uv sync --upgrade
 
 .PHONY: format
-format: install-dev-requirements
+format:
 	uv run ruff format ${PY_DIRECTORIES}
 	uv run ruff check --fix ${PY_DIRECTORIES}
 
 .PHONY: check-format
-check-format: install-dev-requirements
+check-format:
 	uv run ruff check ${PY_DIRECTORIES}
 	uv run ruff format --check ${PY_DIRECTORIES}
 
 .PHONY: check-typing
-check-typing: install-dev-requirements
+check-typing:
 	uv run mypy ${PY_DIRECTORIES}
 
 .PHONY: check-tests
-check-tests: install-dev-requirements
-	uv run pytest -v -s tests/unit/
+check-tests:
+	uv run pytest -v tests/unit/
 
 .PHONY: check-it-tests
-check-it-tests: install-dev-requirements
-	uv run pytest -v -s tests/integration/
+check-it-tests:
+	uv run pytest -v tests/integration/
 
 .PHONY: checks
 checks: check-format check-typing check-tests check-it-tests
@@ -46,12 +46,12 @@ clean:
 .PHONY: build
 build:
 	rm -rf ./dist/
-	uvx --from build pyproject-build --installer uv
+	uv build
 
 .PHONY: publish
 publish:
 	echo "package publishing not enabled"
-#	uvx twine upload --repository-url ${NEXUS_URL} \
-#				 -u ${NEXUS_USER} \
-#				 -p "${NEXUS_PASS}" \
-#				 dist/*
+	# uv publish --repository-url ${NEXUS_URL} \
+	# 			--username ${NEXUS_USER} \
+	# 			--password "${NEXUS_PASS}" \
+	# 			./dist/

@@ -32,19 +32,17 @@ jobs:
       matrix:
         python-version: ["3.12"]
     steps:
-      - name: 'Checkout Repository'
+      - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           ref: ${{ github.ref }}
           fetch-depth: 0
 
-      - name: 'Setup UV'
-        uses: astral-sh/setup-uv@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Setup UV & python
+        uses: astral-sh/setup-uv@v6
         with:
-          python-version: "${{ matrix.python-version }}"
+          version: latest
+          python-version: ${{ matrix.python-version }}
 
       - name: Install dev dependencies
         run: |
@@ -66,4 +64,3 @@ jobs:
       - name: Check integration tests
         run: |
           make check-it-tests
-      
