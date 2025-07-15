@@ -51,7 +51,7 @@ build:
 .PHONY: publish
 publish:
 	echo "package publishing not enabled"
-	# uv publish --repository-url ${NEXUS_URL} \
+	# uv publish --publish-url ${NEXUS_URL} \
 	# 			--username ${NEXUS_USER} \
 	# 			--password "${NEXUS_PASS}" \
 	# 			./dist/
