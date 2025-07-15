@@ -54,4 +54,4 @@ publish:
 	# uv publish --publish-url ${NEXUS_URL} \
 	# 			--username ${NEXUS_USER} \
 	# 			--password "${NEXUS_PASS}" \
-	# 			./dist/
+	# 			"./dist/*"
